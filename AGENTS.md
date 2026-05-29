@@ -61,7 +61,7 @@
 
 * **Supabase Postgres + Auth** 사용
 
-  * 채팅 세션/메시지: `chat_sessions` (RLS, 사용자별 분리)
+  * 채팅 세션/메시지: `chat_sessions` (RLS, **공유 워크스페이스** — 로그인 사용자 전체 공유)
   * MCP 서버 설정: `mcp_servers` (env/headers 포함 — 클라우드 저장 주의)
   * MCP live session 매핑: `mcp_live_sessions`
   * 최초 접속 시 localStorage 데이터 1회 자동 import (`user_settings.local_storage_migrated_at`)
@@ -72,8 +72,8 @@
 
 ## 인증 & 보안 (AUTH & SECURITY)
 
-* Supabase Auth **익명 자동 로그인** (앱 접속 시 `signInAnonymously`, RLS용 `user_id` 발급)
-* DB 접근: **RLS** (`auth.uid() = user_id`)
+* Supabase Auth **익명 자동 로그인** (앱 접속 시 `signInAnonymously`)
+* DB 접근: **RLS** (authenticated 사용자는 채팅/MCP 데이터 **전체 공유**)
 * 키 보관: **`.env.local`** (리포지토리에 커밋 금지)
 * HTTPS 권장, CORS 화이트리스트 구성(필요 시)
 * 로깅: 민감필드 마스킹, 에러 샘플링

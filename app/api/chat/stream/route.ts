@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       : [];
 
     if (sessionIds.length > 0) {
-      await assertLiveSessionOwners(supabase, user.id, sessionIds);
+      await assertLiveSessionOwners(supabase, sessionIds);
     }
   } catch (error) {
     if (error instanceof McpProxyError) {

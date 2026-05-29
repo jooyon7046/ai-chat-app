@@ -17,16 +17,11 @@ export async function requireAuthUser() {
   return result;
 }
 
-export async function loadOwnedMcpServer(
-  supabase: AppSupabase,
-  userId: string,
-  serverId: string,
-) {
+export async function loadMcpServer(supabase: AppSupabase, serverId: string) {
   const { data, error } = await supabase
     .from("mcp_servers")
     .select("*")
     .eq("id", serverId)
-    .eq("user_id", userId)
     .maybeSingle();
 
   if (error || !data) {
@@ -41,13 +36,11 @@ export async function loadOwnedMcpServer(
 
 export async function assertLiveSessionOwner(
   supabase: AppSupabase,
-  userId: string,
   liveSessionId: string,
 ): Promise<void> {
   const { data, error } = await supabase
     .from("mcp_live_sessions")
     .select("id")
-    .eq("user_id", userId)
     .eq("live_session_id", liveSessionId)
     .maybeSingle();
 
@@ -61,7 +54,6 @@ export async function assertLiveSessionOwner(
 
 export async function assertLiveSessionOwners(
   supabase: AppSupabase,
-  userId: string,
   liveSessionIds: string[],
 ): Promise<void> {
   if (liveSessionIds.length === 0) {
@@ -71,7 +63,6 @@ export async function assertLiveSessionOwners(
   const { data, error } = await supabase
     .from("mcp_live_sessions")
     .select("live_session_id")
-    .eq("user_id", userId)
     .in("live_session_id", liveSessionIds);
 
   if (error) {
@@ -102,7 +93,7 @@ export async function upsertLiveSession(
       live_session_id: liveSessionId,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "user_id,server_id" },
+    { onConflict: "server_id" },
   );
 
   if (error) {
@@ -112,13 +103,11 @@ export async function upsertLiveSession(
 
 export async function removeLiveSessionByLiveId(
   supabase: AppSupabase,
-  userId: string,
   liveSessionId: string,
 ): Promise<void> {
   const { error } = await supabase
     .from("mcp_live_sessions")
     .delete()
-    .eq("user_id", userId)
     .eq("live_session_id", liveSessionId);
 
   if (error) {

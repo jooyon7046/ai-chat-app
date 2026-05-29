@@ -131,8 +131,8 @@ export default function Home() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Inspector에서 MCP 서버를 연결하면 채팅에서 도구를 자동으로
-                  사용할 수 있습니다. 채팅과 MCP 설정은 Supabase에 저장되며
-                  이 브라우저의 익명 계정에 귀속됩니다.
+                  사용할 수 있습니다. 채팅과 MCP 설정은 Supabase 공유 워크스페이스에
+                  저장되며 모든 브라우저에서 동일하게 보입니다.
                 </p>
                 <Button
                   variant="outline"

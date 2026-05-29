@@ -1,7 +1,7 @@
 import { connectClient } from "@/lib/mcp/server/connection";
 import { McpProxyError } from "@/lib/mcp/server/errors";
 import {
-  loadOwnedMcpServer,
+  loadMcpServer,
   requireAuthUser,
   upsertLiveSession,
 } from "@/lib/mcp/server/auth";
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       throw new McpProxyError("BAD_REQUEST", "serverId가 필요합니다.");
     }
 
-    const config = await loadOwnedMcpServer(supabase, user.id, body.serverId);
+    const config = await loadMcpServer(supabase, body.serverId);
     const { connection, capabilities } = await connectClient(config);
     const sessionId = createSession(connection, config, capabilities);
 

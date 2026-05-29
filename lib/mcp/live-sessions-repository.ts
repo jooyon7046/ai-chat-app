@@ -31,7 +31,7 @@ export async function setLiveSessionId(
       live_session_id: liveSessionId,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "user_id,server_id" },
+    { onConflict: "server_id" },
   );
 
   if (error) {

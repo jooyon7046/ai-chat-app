@@ -14,9 +14,9 @@ export async function POST(request: Request) {
     const { sessionId } = await parseJsonBody<{ sessionId?: string }>(request);
 
     if (sessionId) {
-      await assertLiveSessionOwner(supabase, user.id, sessionId);
+      await assertLiveSessionOwner(supabase, sessionId);
       await deleteSession(sessionId);
-      await removeLiveSessionByLiveId(supabase, user.id, sessionId);
+      await removeLiveSessionByLiveId(supabase, sessionId);
     }
 
     return Response.json({ ok: true });

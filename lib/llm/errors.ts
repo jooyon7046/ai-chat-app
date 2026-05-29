@@ -30,19 +30,42 @@ export function toChatError(error: unknown): ChatErrorPayload {
       return { code: "CONFIG_ERROR", message: ERROR_MESSAGES.CONFIG_ERROR };
     }
 
+    const modelError = extractGeminiModelError(error.message);
+    if (modelError) {
+      return modelError;
+    }
+
     const status =
       extractStatusFromObject(error) ?? extractStatus(error.message);
     if (status) {
-      return mapStatusToError(status);
+      return mapStatusToError(status, error.message);
     }
   }
 
   const status = extractStatusFromObject(error);
   if (status) {
-    return mapStatusToError(status);
+    const message =
+      error instanceof Error ? error.message : ERROR_MESSAGES.UNKNOWN;
+    return mapStatusToError(status, message);
   }
 
   return { code: "UNKNOWN", message: ERROR_MESSAGES.UNKNOWN };
+}
+
+function extractGeminiModelError(message: string): ChatErrorPayload | null {
+  if (!/\[404 Not Found\]|is not found for API version/i.test(message)) {
+    return null;
+  }
+
+  const modelMatch = message.match(/models\/([^:]+):/);
+  const modelName = modelMatch?.[1];
+
+  return {
+    code: "BAD_REQUEST",
+    message: modelName
+      ? `모델 "${modelName}"을(를) 찾을 수 없습니다. .env.local의 LLM_MODEL 값을 확인해 주세요. (예: gemini-2.5-flash-lite)`
+      : "LLM 모델을 찾을 수 없습니다. .env.local의 LLM_MODEL 값을 확인해 주세요.",
+  };
 }
 
 function extractStatusFromObject(error: unknown): number | null {
@@ -66,7 +89,10 @@ function extractStatus(message: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
-function mapStatusToError(status: number): ChatErrorPayload {
+function mapStatusToError(
+  status: number,
+  rawMessage?: string,
+): ChatErrorPayload {
   if (status === 401) {
     return { code: "UNAUTHORIZED", message: ERROR_MESSAGES.UNAUTHORIZED };
   }
@@ -77,6 +103,11 @@ function mapStatusToError(status: number): ChatErrorPayload {
     return { code: "RATE_LIMITED", message: ERROR_MESSAGES.RATE_LIMITED };
   }
   if (status >= 400 && status < 500) {
+    const modelError =
+      rawMessage !== undefined ? extractGeminiModelError(rawMessage) : null;
+    if (modelError) {
+      return modelError;
+    }
     return { code: "BAD_REQUEST", message: ERROR_MESSAGES.BAD_REQUEST };
   }
   if (status >= 500) {

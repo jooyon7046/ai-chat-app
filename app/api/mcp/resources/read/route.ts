@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       throw new McpProxyError("BAD_REQUEST", "sessionId와 uri가 필요합니다.");
     }
 
-    await assertLiveSessionOwner(supabase, user.id, body.sessionId);
+    await assertLiveSessionOwner(supabase, body.sessionId);
     const session = getSession(body.sessionId);
     const result = await readResource(session.connection, body.uri);
     return Response.json(result);

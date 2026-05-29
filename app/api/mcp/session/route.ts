@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return Response.json({ alive: false });
     }
 
-    await assertLiveSessionOwner(supabase, user.id, sessionId);
+    await assertLiveSessionOwner(supabase, sessionId);
 
     const entry = peekSession(sessionId);
     if (!entry) {
